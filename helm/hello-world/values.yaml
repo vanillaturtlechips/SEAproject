@@ -1,0 +1,19 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/vanillaturtlechips/hello-world-k8s
+  tag: latest
+  pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
