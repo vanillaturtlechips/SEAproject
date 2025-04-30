@@ -9,6 +9,9 @@ service:
   type: LoadBalancer
   port: 80
   targetPort: 3000
+  selector:
+    app: hello-world
+    release: hello-world
 
 resources:
   limits:

@@ -3,7 +3,7 @@ const http = require('http');
 const server = http.createServer((req, res) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World!\n');
+  res.end('hello world argocd!\n'); // 메시지 변경
 });
 
 const port = process.env.PORT || 3000;
