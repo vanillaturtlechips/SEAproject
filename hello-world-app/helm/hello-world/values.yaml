@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: kwa06001/hello-world-app  # Docker Hub 사용자 이름으로 변경하세요.
+  repository: kwa06001/hello-world-app
   pullPolicy: IfNotPresent
   tag: latest
 
@@ -12,25 +12,14 @@ service:
 ingress:
   enabled: false
   annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
   hosts:
     - host: chart-example.local
       paths:
         - path: /
           pathType: ImplementationSpecific
   tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
 
 resources: {}
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
 
 nodeSelector: {}
 
@@ -43,3 +32,5 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 3
   targetCPUUtilizationPercentage: 80
+
+namespace: default # 이 줄을 추가합니다. 원하는 네임스페이스로 변경 가능합니다.
