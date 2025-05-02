@@ -43,12 +43,10 @@ spec:
               path: /
               port: http
           readinessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - "curl -s http://localhost:3000 > /dev/null 2>&1; if [ $? -eq 0 ]; then exit 0; else exit 1; fi"
-            initialDelaySeconds: 5
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
             periodSeconds: 5
             timeoutSeconds: 2
           resources:
