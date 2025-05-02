@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "hello-world.fullname" . }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   labels:
     {{- include "hello-world.labels" . | nindent 4 }}
 spec:
@@ -19,6 +20,7 @@ spec:
       {{- end }}
       labels:
         {{- include "hello-world.selectorLabels" . | nindent 8 }}
+      namespace: {{ .Values.namespace | default .Release.Namespace }} # Pod에도 네임스페이스 명시 (선택 사항)
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
