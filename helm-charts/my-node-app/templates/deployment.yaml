@@ -1,17 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "hello-world.fullname" . }}
-  namespace: {{ .Values.namespace | default .Release.Namespace }}
+  name: {{ include "my-node-app.fullname" . }}
   labels:
-    {{- include "hello-world.labels" . | nindent 4 }}
+    {{- include "my-node-app.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "hello-world.selectorLabels" . | nindent 6 }}
+      {{- include "my-node-app.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -19,13 +18,13 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "hello-world.selectorLabels" . | nindent 8 }}
-      namespace: {{ .Values.namespace | default .Release.Namespace }} # Pod에도 네임스페이스 명시 (선택 사항)
+        {{- include "my-node-app.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      serviceAccountName: {{ include "my-node-app.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -36,21 +35,30 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 3000
+              containerPort: {{ .Values.envVars.PORT | default 3000 }} # values.yaml의 PORT 사용
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
+              path: /health # app.js에 정의된 health check 엔드포인트
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /health
               port: http
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            timeoutSeconds: 2
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            {{- range $key, $val := .Values.envVars }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+            # PostgreSQL 비밀번호는 Secret에서 가져오는 것이 좋습니다.
+            # 예시:
+            # - name: DB_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: postgresql-secret
+            #       key: password
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

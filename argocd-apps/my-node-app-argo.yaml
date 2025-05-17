@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: my-node-app
+  namespace: argocd # ArgoCD가 설치된 네임스페이스
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/vanillaturtlechips/SEAproject.git' # GitOps 리포지토리 URL
+    targetRevision: HEAD # 또는 특정 브랜치 (예: main)
+    path: helm-charts/my-node-app # GitOps 리포지토리 내 Helm 차트 경로
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: 'https://kubernetes.default.svc' # 대상 Kubernetes 클러스터 API 서버
+    namespace: default # 애플리케이션을 배포할 네임스페이스 (예: my-app-ns)
+  syncPolicy:
+    automated:
+      prune: true # Git에서 사라진 리소스를 클러스터에서도 삭제
+      selfHeal: true # 클러스터 상태가 Git 상태와 다를 경우 자동 복구
+    syncOptions:
+    - CreateNamespace=true # 네임스페이스가 없으면 자동 생성
