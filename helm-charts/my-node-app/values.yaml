@@ -1,0 +1,63 @@
+replicaCount: 1
+
+image:
+  repository: kwa06001/hello-world-app # GitHub Actions에서 설정한 DOCKER_IMAGE_NAME과 동일하게
+  pullPolicy: IfNotPresent
+  tag: "" # CI 파이프라인이 이 부분을 업데이트합니다 (예: latest 또는 Git SHA)
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podSecurityContext: {}
+securityContext: {}
+
+service:
+  type: ClusterIP # 또는 LoadBalancer (외부 노출 시)
+  port: 80
+
+ingress:
+  enabled: false # 필요 시 true로 변경하고 설정 추가
+  # annotations:
+  #   kubernetes.io/ingress.class: nginx
+  # hosts:
+  #   - host: chart-example.local
+  #     paths:
+  #       - path: /
+  #         pathType: ImplementationSpecific
+  # tls: []
+
+resources: {}
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+autoscaling:
+  enabled: false
+  # minReplicas: 1
+  # maxReplicas: 10
+  # targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# PostgreSQL DB 연결 정보 (Kubernetes Secret을 통해 주입하는 것이 좋음)
+# 여기서는 환경 변수로 직접 설정하는 예시를 보여주지만, 실제로는 Secret 사용 권장
+envVars:
+  PORT: "3000"
+  DB_USER: "postgres" # 실제 값은 Secret에서 가져오도록 변경
+  DB_HOST: "your-postgres-service-name" # Kubernetes 내 PostgreSQL 서비스 주소
+  DB_NAME: "mydatabase"
+  DB_PASSWORD: "yoursecurepassword" # 실제 값은 Secret에서 가져오도록 변경
+  DB_PORT: "5432"
