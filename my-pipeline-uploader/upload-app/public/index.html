@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CI/CD 소스 코드 업로더</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 600px; margin: 30px auto; padding: 20px; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        input[type="file"] { display: block; width: calc(100% - 22px); padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 4px; }
+        input[type="submit"] { background-color: #5cb85c; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; }
+        input[type="submit"]:hover { background-color: #4cae4c; }
+        .message { margin-top: 20px; padding: 10px; border-radius: 4px; }
+        .message.success { background-color: #dff0d8; border: 1px solid #d6e9c6; color: #3c763d; }
+        .message.error { background-color: #f2dede; border: 1px solid #ebccd1; color: #a94442; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Node.js 소스 코드 업로드 (ZIP 파일)</h2>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <label for="sourceCodeZip">ZIP 파일 선택:</label>
+            <input type="file" name="sourceCodeZip" id="sourceCodeZip" accept=".zip" required>
+            <input type="submit" value="업로드 및 파이프라인 실행">
+        </form>
+        <div id="responseMessage" class="message" style="display:none;"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const responseMessageDiv = document.getElementById('responseMessage');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            responseMessageDiv.style.display = 'none';
+            responseMessageDiv.textContent = '';
+            responseMessageDiv.className = 'message';
+
+            const formData = new FormData(form);
+            const submitButton = form.querySelector('input[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.value = '업로드 중...';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const resultText = await response.text();
+
+                if (response.ok) {
+                    responseMessageDiv.textContent = "성공: " + resultText;
+                    responseMessageDiv.classList.add('success');
+                } else {
+                    responseMessageDiv.textContent = "오류: " + resultText;
+                    responseMessageDiv.classList.add('error');
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                responseMessageDiv.textContent = '업로드 중 네트워크 오류 또는 서버 연결 문제가 발생했습니다: ' + error.message;
+                responseMessageDiv.classList.add('error');
+            } finally {
+                responseMessageDiv.style.display = 'block';
+                submitButton.disabled = false;
+                submitButton.value = '업로드 및 파이프라인 실행';
+                form.reset(); // 폼 초기화
+            }
+        });
+    </script>
+</body>
+</html>
